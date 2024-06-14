@@ -91,7 +91,7 @@ localStorage.setItem('cart',JSON.stringify(cart));
 			if (index !== -1 ) {
 				
 			let currentQty = parseInt(cart[index].qty);  // On récupère la valeur de qty associé à l'index trouvé
-			let additionalQty = choixQte; // on récupère la valeur saisie par le client
+			let additionalQty = choixQte; // on récupère la valeur saisie par le client.
 			let newQty = currentQty + additionalQty; // On fait attention que newQty ne dépasse pas 100.
          
          if (newQty > 100 ){
