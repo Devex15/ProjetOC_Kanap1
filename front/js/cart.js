@@ -39,11 +39,11 @@ console.log(cartCommand);
 
 // tentative d'affichage de cartcommand avec une interpolation ; 
 
-let element = document.getElementById("cart__items");
+let element = document.getElementById("cart__items")
         
 let article = cartCommand.map((commandItem) => {
-        return `
-             <article class="cart__item" data-id="${commandItem.id}" data-color="${commandItem.color}">
+              return ` 
+                <article class="cart__item" data-id="${commandItem.id}" data-color="${commandItem.color}">
                 <div class="cart__item__img">
                   <img src="../images/${commandItem.Img}" alt= ${commandItem.altTxt}>
                 </div>
@@ -63,10 +63,15 @@ let article = cartCommand.map((commandItem) => {
                     </div>
                   </div>
                 </div>
-              </article>
-`}).join();
+              </article>       
+`;
 
-element.innerHTML += article 
+}).join(``);
+
+element.innerHTML += article;
+
+
+
 
 
 

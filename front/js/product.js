@@ -17,11 +17,11 @@ fetch("http://localhost:3000/api/products/"+productId)
 .then((product)=>insertProductInfo(product))}
 
 function insertProductInfo(product) {
-      document.getElementById("title").innerText = product.name;
+   document.getElementById("title").innerText = product.name;
 
-    document.getElementById("price").innerText = product.price;
+   document.getElementById("price").innerText = product.price;
 
-    document.getElementById("description").innerText = product.description;
+   document.getElementById("description").innerText = product.description;
 
    product.colors.forEach((color)=>{
     let option = document.createElement("option");
