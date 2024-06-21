@@ -33,29 +33,37 @@ function compareProducts(listProducts) {
                         })
                }
         });
+        // On fait appel à la fonction displayCartItem() qui est synchrone alors que la res de fetch est asynchrone. 
+
+        displayCartItem ();
 }
         
 console.log(cartCommand);
 
-// tentative d'affichage de cartcommand avec une interpolation ; 
 
+// =========================================================================
+// La function displayCartItem permet d'afficher le contenu de cartCommand.
+// =========================================================================
+// Comme fetch est asynchrone et la fonction synchrone , displayCartItem est appelée dans fetch .  
+
+function displayCartItem () {  
 let element = document.getElementById("cart__items")
-        
+
 let article = cartCommand.map((commandItem) => {
               return ` 
                 <article class="cart__item" data-id="${commandItem.id}" data-color="${commandItem.color}">
                 <div class="cart__item__img">
-                  <img src="../images/${commandItem.Img}" alt= ${commandItem.altTxt}>
+                  <img src="${commandItem.Img}" alt= "${commandItem.altTxt}">
                 </div>
                 <div class="cart__item__content">
                   <div class="cart__item__content__description">
-                    <h2>${commandItem.name}</h2>
-                    <p>${commandItem.color}</p>
-                    <p>${commandItem.price}</p>
+                    <h2> modèle : ${commandItem.name}</h2>
+                    <p> couleur: ${commandItem.color}</p>
+                    <p>Prix unitaire: ${commandItem.price} € </p>
                   </div>
                   <div class="cart__item__content__settings">
                     <div class="cart__item__content__settings__quantity">
-                      <p>Quantité : ${commandItem.qty}</p>
+                      <p> Quantité : ${commandItem.qty}</p>
                       <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${commandItem.qty}">
                     </div>
                     <div class="cart__item__content__settings__delete">
@@ -70,7 +78,7 @@ let article = cartCommand.map((commandItem) => {
 
 element.innerHTML += article;
 
-
+}
 
 
 
