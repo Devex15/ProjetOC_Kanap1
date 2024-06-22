@@ -33,18 +33,30 @@ function compareProducts(listProducts) {
                         })
                }
         });
-        // On fait appel à la fonction displayCartItem() qui est synchrone alors que la res de fetch est asynchrone. 
 
+        let totalQty = cartCommand.reduce((accumulator, cardCommand) =>{
+          return  accumulator + cardCommand.qty
+        }, 0 )
+
+        document.getElementById("totalQuantity").innerText = totalQty;
+
+        let totalPrice = cartCommand.reduce((accumulators, cartCommand) => {
+        return accumulators + (cartCommand.qty * cartCommand.price)
+        }, 0)
+
+      document.getElementById("totalPrice").innerText = totalPrice; 
+
+        // On fait appel à la fonction displayCartItem() qui est synchrone alors que la res de fetch est asynchrone. 
         displayCartItem ();
 }
         
-console.log(cartCommand);
+//console.log(cartCommand);
 
 
 // =========================================================================
 // La function displayCartItem permet d'afficher le contenu de cartCommand.
 // =========================================================================
-// Comme fetch est asynchrone et la fonction synchrone , displayCartItem est appelée dans fetch .  
+// Comme fetch est lié à une prommesse de réponse est asynchrone et la fonction synchrone , displayCartItem est appelée dans fetch .  
 
 function displayCartItem () {  
 let element = document.getElementById("cart__items")

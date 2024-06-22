@@ -22,6 +22,11 @@ function insertProductInfo(product) {
    document.getElementById("price").innerText = product.price;
 
    document.getElementById("description").innerText = product.description;
+   
+   let sofaImge = document.createElement("img");
+   sofaImge.setAttribute("src", product.imageUrl);
+   sofaImge.setAttribute("alt", product.altTxt); 
+   document.querySelector(".item__img").appendChild(sofaImge);
 
    product.colors.forEach((color)=>{
     let option = document.createElement("option");
