@@ -71,39 +71,39 @@ function addToCart() {
 let productidPresent = cart.some((elements) => elements.id === productId) ;
 
 if (!productidPresent) {
-//Si pas présent , on push une ligne id: color: qty: dans cart et on remplace le cart enregistré dans le local storage par le "nouveau" cart. 
+   //Si pas présent , on push une ligne id: color: qty: dans cart et on remplace le cart enregistré dans le local storage par le "nouveau" cart. 
 
-cart.push({id: productId, color: colorSofa, qty: choixQte});
-localStorage.setItem('cart',JSON.stringify(cart));
+   cart.push({id: productId, color: colorSofa, qty: choixQte});
+   localStorage.setItem('cart',JSON.stringify(cart));
 
-	} else {
-	// On continue les vérifications
+} else {
+   // On continue les vérifications
 	// On utilise la méthode .find() qui verifie si la combo id: color: saisi  par le client se trouve dans le tableau cart. 
 
 		let colorPresent = cart.find((elements) => elements.id === productId && elements.color === colorSofa )
 	
-		if (!colorPresent) {
-		cart.push({id: productId, color: colorSofa, qty: choixQte});
-		localStorage.setItem('cart',JSON.stringify(cart));
+	if (!colorPresent) {
+	   cart.push({id: productId, color: colorSofa, qty: choixQte});
+	   localStorage.setItem('cart',JSON.stringify(cart));
 	
-		} else {
-			// On continue les vérifications : on va chercher la quantité 
-			// On utilise la méthode .findIndex() afin de récupérer l'index de l'objet avec la qty qui nous intéresse. 
+	} else {
+	// On continue les vérifications : on va chercher la quantité 
+	// On utilise la méthode .findIndex() afin de récupérer l'index de l'objet avec la qty qui nous intéresse. 
 
-			let index = cart.findIndex((elements) => elements.id === productId && elements.color === colorSofa )
-			// if (index!== -1 ) : veut dire qty existe et normalement il existe dans le tableau "cart" même s'il est nulle.
+	let index = cart.findIndex((elements) => elements.id === productId && elements.color === colorSofa )
+	// if (index!== -1 ) : veut dire qty existe et normalement il existe dans le tableau "cart" même s'il est nulle.
 			
-			if (index !== -1 ) {
+	if (index !== -1 ) {
 				
-			let currentQty = parseInt(cart[index].qty);  // On récupère la valeur de qty associé à l'index trouvé
-			let additionalQty = choixQte; // on récupère la valeur saisie par le client.
-			let newQty = currentQty + additionalQty; // On fait attention que newQty ne dépasse pas 100.
+	   let currentQty = parseInt(cart[index].qty);  // On récupère la valeur de qty associé à l'index trouvé
+	   let additionalQty = choixQte; // on récupère la valeur saisie par le client.
+	   let newQty = currentQty + additionalQty; // On fait attention que newQty ne dépasse pas 100.
          
-         if (newQty > 100 ){
-            let rest = 100 - currentQty;
-            alert ( ` Vous ne pouvez pas choisir plus de 100 sofas. Vous pouvez choisir encore ${rest} sofas.`)
-            return;
-         } 
+      if (newQty > 100 ){
+         let rest = 100 - currentQty;
+         alert ( ` Vous ne pouvez pas choisir plus de 100 sofas. Vous pouvez choisir encore ${rest} sofas.`)
+         return;
+      } 
          
          cart[index].qty = newQty;   // On ajoute les deux valeurs et la somme est mise à jour la valeur qty ajouté dans le tableau cart      
          localStorage.setItem('cart',JSON.stringify(cart));
