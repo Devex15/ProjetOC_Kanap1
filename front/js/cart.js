@@ -1,50 +1,144 @@
-displayCommand(); 
+//===========================================================================================================
+// On crée les fonctions displayCartItem, updateTotals, updateCommand et modifCommand en dehors de displayCommand
+//===========================================================================================================
+// La fonction displayCartItem va afficher les éléments du DOM :
+
+function displayCartItem(cartCommand) {
+  let element = document.getElementById("cart__items");
+  element.innerHTML = '';  // Réinitialise l'affichage précédent . 
+
+  let article = cartCommand.map((commandItem) => {
+    let price = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(commandItem.price);
+    return `
+      <article class="cart__item" data-id="${commandItem.id}" data-color="${commandItem.color}">
+        <div class="cart__item__img">
+          <img src="${commandItem.Img}" alt="${commandItem.altTxt}">
+        </div>
+        <div class="cart__item__content">
+          <div class="cart__item__content__description">
+            <h2>Modèle : ${commandItem.name}</h2>
+            <p>Couleur: ${commandItem.color}</p>
+            <p>Prix unitaire: ${price} </p>
+          </div>
+          <div class="cart__item__content__settings">
+            <div class="cart__item__content__settings__quantity">
+              <p>Quantité :</p>
+              <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${commandItem.qty}">
+            </div>
+            <div class="cart__item__content__settings__delete">
+              <p class="deleteItem">Supprimer</p>
+            </div>
+          </div>
+        </div>
+      </article>`;
+  }).join('');
+
+  element.innerHTML = article;
+
+  // Appel des fonctions updateCommand et modifCommand : Ces deux fonctions vont permettre de modifier la quantité ou desupprimer un item.
+  updateCommand();
+  modifCommand();
+}
+
+// La fonction updatetotals calcule les quantités d'articles ainsi que le prix à payer . 
+function updateTotals(cartCommand) {
+  let totalQty = cartCommand.reduce((accumulator, cartCommand) => {
+    return accumulator + cartCommand.qty;
+  }, 0);
+
+  document.getElementById("totalQuantity").innerText = totalQty;
+
+  let totalPrice = cartCommand.reduce((accumulators, cartCommand) => {
+    return accumulators + (cartCommand.qty * cartCommand.price);
+  }, 0);
+
+  // On utilise new Intl.NumberFormat() qui permet de séparer les milliers ainsi que d'afficher la currency. 
+  let totalPriceToPay = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(totalPrice);
+  document.getElementById("totalPrice").innerText = totalPriceToPay;
+}
+
+// ==========================================================================================================
+// On crée la fonction update command qui va permettre de modifier la quantité si le client le souhaite 
+// ===================================================================================================
+// La fonction update command va être appelé dans la fonction displayCarItem  : 
+
+function updateCommand() {
+  document.querySelectorAll('.itemQuantity').forEach((input) => {
+    input.addEventListener('change', function(event) {
+      let cartItem = event.target.closest('.cart__item');
+      let updateId = cartItem.getAttribute('data-id');
+      let updateColor = cartItem.getAttribute('data-color');
+      let updateQty = event.target.value;
+
+      if (updateQty > 100) {
+        alert('Veuillez choisir une quantité comprise entre 0 et 100');
+        return;
+      }
+
+      let cartUpdate = localStorage.getItem("cart") ? JSON.parse(localStorage.getItem("cart")) : [];
+      let indexUpdate = cartUpdate.findIndex((item) => item.id === updateId && item.color === updateColor);
+
+      if (indexUpdate !== -1) {
+        cartUpdate[indexUpdate].qty = parseInt(updateQty);
+      }
+
+      localStorage.setItem('cart', JSON.stringify(cartUpdate));
+
+      // On met à jour l'affichage de la page sans la recharger. :
+      displayCommand();
+    });
+  });
+}
 
 //======================================================================================
-// On crée une super fonction qui va créer les éléments du DOM de la commande client
-//=======================================================================================
-// Function displayCommand va chercher les infos du localStorage de l'Api et faire les affichages .
+//La fonction modiCommand va permettre la modification la suppression d'un article par un client .
+//===================================================================================
+// La fonction modifCommand va être appelé dans  la fonction diplsayCartItem 
 
+function modifCommand() {
+  document.querySelectorAll('.deleteItem').forEach((delet) => {
+    delet.addEventListener(('click'), function(events) {
+      let deletItem = events.target.closest('.cart__item');
+      let deletId = deletItem.getAttribute('data-id');
+      let deletColor = deletItem.getAttribute('data-color');
+
+      let cartModified = localStorage.getItem("cart") ? JSON.parse(localStorage.getItem("cart")) : [];
+      let indexDelete = cartModified.findIndex((itemModified) => itemModified.id === deletId && itemModified.color === deletColor);
+
+      if (indexDelete !== -1) {
+        cartModified.splice(indexDelete, 1);
+        localStorage.setItem('cart', JSON.stringify(cartModified));
+        // Mettre à jour l'affichage sans recharger la page
+        displayCommand();
+      }
+    });
+  });
+}
+
+//===========================================================================================================
+// La fonction displayCommand va chercher les infos du localStorage de l'Api et faire les affichages .
+//===========================================================================================================
+// C'est la super fonction qui va appeler les autres fonction (displayCartItem et updateTotals)
 function displayCommand() {
-
-  // On crée un tableau cartClient qui va réunir les infos du local storage ( id color , qty)
   let cartClient = localStorage.getItem("cart") ? JSON.parse(localStorage.getItem("cart")) : [];
 
-  // On vérifie que le cartClient n'est pas vide car s'il est vide = pas de commande.
-    if (cartClient.length === 0) {
-      alert("Vous n'avez aucune commande à afficher. N'hésitez pas à faire votre choix.");
-      return; // Arrêter l'exécution si le cart est vide.
-    }
+  if (cartClient.length === 0) {
+    alert("Vous n'avez aucune commande à afficher. N'hésitez pas à faire votre choix.");
+    return;
+  }
 
-
-  // On crée une variable cartCommand qui va réunir les infos de la commande client à afficher ( id , color , qty , imageUrl , altTxt , etc )
   let cartCommand = [];
-
-  // On fait appel à l'API en sélectionnant les objets du cartClient un par un . L'objectif étant d'afficher name descript venant de l'api :
-  // On crée la variable fetchPromises qui va permettre d'attendre que toutes les promesses de fetch soient exécutées.
-
-  let fetchPromises = cartClient.map((cartItem) => { 
-    return fetch("http://localhost:3000/api/products/"+cartItem.id)
+  let fetchPromises = cartClient.map((cartItem) => {
+    return fetch("http://localhost:3000/api/products/" + cartItem.id)
       .then((res) => res.json())
-      .then((apiProduct) => {getInfoCartClient(apiProduct, cartItem);});
+      .then((apiProduct) => { getInfoCartClient(apiProduct, cartItem); });
   });
-  
-  // ================================================================================================================================
-  // On utilise la Promise.all afin que toutes les promesses de réponse de l'API soient exécutées avant d'afficher  la commande client 
-  //==================================================================================================================================
-  // Sans elle , le carCommand s'affiche autant de fois qu'il y a de requête à l'API : Testé et a créé des problèmes d'affichage 
-  // Les fonction updateTotal() et displayCartItem() vont servir à afficher les prix et les éléments du DOM.
 
+  // On attend que les promesses du fetch soient réalisées . 
   Promise.all(fetchPromises).then(() => {
-      updateTotals();
-      displayCartItem();
+    updateTotals(cartCommand);
+    displayCartItem(cartCommand);
   });
-
-
-  //============================================================================================================
-  // On crée  la fonction getInfoCartClient qui va crée le tableau cartCommand qui va réunir les infos de la commande client
-  // =====================================================================================================
-  // cartCommand va servir à afficher les infos de la commande du client ( getInfoCartClient a été appelé dans le fetch)
 
   function getInfoCartClient(apiProduct, cartItem) {
     cartCommand.push({
@@ -57,151 +151,75 @@ function displayCommand() {
       price: apiProduct.price
     });
   }
-
-  // ============================================================================================================
-  // On crée updateTotals qui  va calculer les quantité ainsi que le prix en utilisant les infos de cartCommand
-  //============================================================================================================
-  function updateTotals() {
-    let totalQty = cartCommand.reduce((accumulator, cartCommand) => {
-      return accumulator + cartCommand.qty;
-      }, 0);
-
-    document.getElementById("totalQuantity").innerText = totalQty;
-
-    let totalPrice = cartCommand.reduce((accumulators, cartCommand) => {
-      return accumulators + (cartCommand.qty * cartCommand.price);
-    }, 0);
-
-    let totalPriceToPay = new Intl.NumberFormat('fr-FR', {style: 'currency', currency: 'EUR' }).format(totalPrice)
-
-    document.getElementById("totalPrice").innerText = totalPriceToPay;
-  }
-
-  //========================================================================================================
-  // On crée la fonction displayCartItem , appelée avec fetch afin d'afficher les éléments du DOM
-  //=====================================================================================================
-  function displayCartItem() {
-    let element = document.getElementById("cart__items");
-  
-    let article = cartCommand.map((commandItem) => {
-    let price = new Intl.NumberFormat('fr-FR', {style: 'currency', currency: 'EUR' }).format(commandItem.price)
-      return `
-        <article class="cart__item" data-id="${commandItem.id}" data-color="${commandItem.color}">
-          <div class="cart__item__img">
-            <img src="${commandItem.Img}" alt="${commandItem.altTxt}">
-          </div>
-            <div class="cart__item__content">
-            <div class="cart__item__content__description">
-              <h2>Modèle : ${commandItem.name}</h2>
-              <p>Couleur: ${commandItem.color}</p>
-              <p>Prix unitaire: ${price} </p>
-            </div>
-            <div class="cart__item__content__settings">
-              <div class="cart__item__content__settings__quantity">
-                <p>Quantité :</p>
-                <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${commandItem.qty}">
-              </div>
-              <div class="cart__item__content__settings__delete">
-                <p class="deleteItem">Supprimer</p>
-              </div>
-            </div>
-          </div>
-        </article>`;
-    }).join('');
-
-    element.innerHTML += article;
-
-    // La fonction updateCommand  va être appelé afin de prendre en compte les modifications de quantité par le client. 
-    updateCommand();
-    modifCommand();
-    }
 }
 
-  //========================================================================================================
-  // On crée la fonction udateCommand qui va récupérer l'id , la couleur et la Qty et faire les modifications
-  // =====================================================================================================
-  // On utilisera location.reload() afin de valider les modifications .
-  function updateCommand() {
-    // On recherche les sélecteurs qui ont comme class itemQuantity donc les input .
-    // On leur met un addEventListener qui va considérer les changements. 
-    document.querySelectorAll('.itemQuantity').forEach((input) => {
-    input.addEventListener('change', function(event) {
 
-    // on recherche les sélecteur parent de itemQuantity et on se trouve les infos sur l'id et la color 
-    let cartItem = event.target.closest('.cart__item');
+//========================================================================================
+// Function validateForm va tester la saisie des formulaires par le client : nom, prenom etc 
+//=============================================================================================
+// Elle est appelées ensuite 
 
-    let updateId = cartItem.getAttribute('data-id');
-    let updateColor = cartItem.getAttribute('data-color');
-    let updateQty = event.target.value;
-    //console.log('id', updateId); 
-    //console.log('color:', updateColor);
-    //console.log('Qty', updateQty);
-      
-      if(updateQty > 100) {
-        alert('Veuillez choisir une quantité comprise entre 0 et 100');
-      return;
-      }
-
-      // On recharge le cart du local storage et on l'appelle cartUpdate
-      let cartUpdate = localStorage.getItem("cart") ? JSON.parse(localStorage.getItem("cart")) : [];
-
-
-      // on recherche l'index qui va être concerné par la modification. 
-      let indexUpdate = cartUpdate.findIndex((item) => item.id === updateId && item.color === updateColor);
-
-       // On effectue la modification : !==  -1 signifie que on recherche le contraire d'un index qui n'existe pas : l'index existe. 
-      if (indexUpdate !== -1) {
-        cartUpdate[indexUpdate].qty = parseInt(updateQty);
-      }
-
-      // console.log(cartUpdate);
-
-      localStorage.setItem('cart',JSON.stringify(cartUpdate)); 
-
-      displayCommand();
-
-      //On recharge la page 
-      location.reload();
-      });
-    });
+function validateForm() {
+  // ========================================================
+  // Validation des formulaires avec des régex 
+  //=======================================================
+  // On définit les masques de régex en vue de validation
+  const patterns = {
+    firstName: /^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]{2,30}$/, // Prénom : lettres (y compris les accents), espaces, tirets et apostrophes, de 2 à 30 caractères.
+    lastName: /^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]{2,30}$/, // Nom : mêmes règles que pour le prénom.
+    address: /^[A-Za-z0-9À-ÖØ-öø-ÿ\s,'-]{5,100}$/, // Adresse : lettres, chiffres, accents, espaces, virgules, tirets, apostrophes, de 5 à 100 caractères.
+    email: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/ // Email : format standard des adresses e-mail.
+  };
+  
+  // Function to validate a field
+  function validateField(field, regex, errorMsg) {
+    // Teste si la valeur du champ ne correspond pas à l'expression régulière (regex)
+    if (!regex.test(field.value)) {
+        errorMsg.textContent = 'Valeur invalide'; // Affiche un message d'erreur si invalide.
+        return false; // Retourne false si la validation échoue.
+    } else {
+        errorMsg.textContent = ''; // Efface le message d'erreur si valide.
+        return true; // Retourne true si la validation réussit.
+    }
   }
-
-  function modifCommand() {
-
-    document.querySelectorAll('.deleteItem').forEach((delet) => {
-      delet.addEventListener(('click'), function(events) {
-
-        // On recherche les sélecteurs class cart__items afin de récupérer l'id et la color . 
-        let deletItem = events.target.closest('.cart__item');
-        let deletId = deletItem.getAttribute('data-id');
-        let deletColor = deletItem.getAttribute('data-color');
-        //let deletQty = events.target.value;
-
-        //console.log('id', deletId);
-        //console.log('color', deletColor);
-        //console.log('Qty', deletQty); 
-
-        let cartModified = localStorage.getItem("cart") ? JSON.parse(localStorage.getItem("cart")) : [];
-
-        // On cherche dans le cart du localstorage , l'index correspondant à l'index à effacer . 
-        let indexDelete = cartModified.findIndex((itemModified) => itemModified.id === deletId && itemModified.color === deletColor); 
-
-        if (indexDelete !== -1) {
-
-          // avec la méthode .splice , on supprime du carModified du localStorage l'index qui correspond à l'id et la color.
-          cartModified.splice(indexDelete, 1);
-
-          console.log(cartModified);
-
-          // On push la cart dans le local Storage 
-          localStorage.setItem('cart', JSON.stringify(cartModified)); 
-
-
-          displayCommand(); 
-
-          location.reload();
-        }
-      });
-    });
-
+  
+  // On récupère les éléments form et input
+  const form = document.querySelector('form.cart__order__form'); // Récupère l'élément du formulaire par son ID.
+  const firstName = document.getElementById('firstName'); // Récupère l'élément de l'input prénom par son ID.
+  const lastName = document.getElementById('lastName'); // Récupère l'élément de l'input nom par son ID.
+  const address = document.getElementById('address'); // Récupère l'élément de l'input adresse par son ID.
+  const email = document.getElementById('email'); // Récupère l'élément de l'input email par son ID.
+  
+  // On récupère les éléments d'affichage d'erreur
+  const firstNameErrorMsg = document.getElementById('firstNameErrorMsg'); // Récupère l'élément de message d'erreur pour le prénom par son ID.
+  const lastNameErrorMsg = document.getElementById('lastNameErrorMsg'); // Récupère l'élément de message d'erreur pour le nom par son ID.
+  const addressErrorMsg = document.getElementById('addressErrorMsg'); // Récupère l'élément de message d'erreur pour l'adresse par son ID.
+  const emailErrorMsg = document.getElementById('emailErrorMsg'); // Récupère l'élément de message d'erreur pour l'email par son ID.
+  
+  // On ajoute les addEventListener en vue de validation :
+  firstName.addEventListener('input', () => validateField(firstName, patterns.firstName, firstNameErrorMsg)); // Ajoute un écouteur d'événement 'input' pour valider le prénom en temps réel.
+  lastName.addEventListener('input', () => validateField(lastName, patterns.lastName, lastNameErrorMsg)); // Ajoute un écouteur d'événement 'input' pour valider le nom en temps réel.
+  address.addEventListener('input', () => validateField(address, patterns.address, addressErrorMsg)); // Ajoute un écouteur d'événement 'input' pour valider l'adresse en temps réel.
+  email.addEventListener('input', () => validateField(email, patterns.email, emailErrorMsg)); // Ajoute un écouteur d'événement 'input' pour valider l'email en temps réel.
+  
+  // Validate on form submit
+  form.addEventListener('submit', (e) => {
+    // Valide chaque champ du formulaire lors de la soumission
+    const isValidFirstName = validateField(firstName, patterns.firstName, firstNameErrorMsg);
+    const isValidLastName = validateField(lastName, patterns.lastName, lastNameErrorMsg);
+    const isValidAddress = validateField(address, patterns.address, addressErrorMsg);
+    const isValidEmail = validateField(email, patterns.email, emailErrorMsg);
+  
+    // Si l'un des champs n'est pas valide, empêche la soumission du formulaire
+    if (!isValidFirstName || !isValidLastName || !isValidAddress || !isValidEmail) {
+        e.preventDefault(); // Empêche la soumission du formulaire si un champ est invalide.
+    }
+  });
   }
+  
+// Appel initial de displayCommand
+displayCommand();
+
+// validation de saisies du client :
+validateForm()
+
