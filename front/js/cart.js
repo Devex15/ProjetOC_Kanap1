@@ -175,7 +175,7 @@ function validateForm() {
   function validateField(field, regex, errorMsg) {
     // Teste si la valeur du champ ne correspond pas à l'expression régulière (regex)
     if (!regex.test(field.value)) {
-        errorMsg.textContent = 'Valeur invalide'; // Affiche un message d'erreur si invalide.
+        errorMsg.textContent = 'Saisie incorrecte , veuillez recommencer'; // Affiche un message d'erreur si invalide.
         return false; // Retourne false si la validation échoue.
     } else {
         errorMsg.textContent = ''; // Efface le message d'erreur si valide.
@@ -216,10 +216,10 @@ function validateForm() {
     }
   });
   }
-  
+
 // Appel initial de displayCommand
 displayCommand();
 
-// validation de saisies du client :
+// Appel de la fonction de validation des saisies du client :
 validateForm()
 
