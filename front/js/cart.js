@@ -175,7 +175,7 @@ function validateForm() {
   function validateField(field, regex, errorMsg) {
     // Teste si la valeur du champ ne correspond pas à l'expression régulière (regex)
     if (!regex.test(field.value)) {
-        errorMsg.textContent = 'Saisie incorrecte , veuillez recommencer'; // Affiche un message d'erreur si invalide.
+        errorMsg.textContent = 'Saisie incorrecte , veuillez recommencer SVP'; // Affiche un message d'erreur si invalide.
         return false; // Retourne false si la validation échoue.
     } else {
         errorMsg.textContent = ''; // Efface le message d'erreur si valide.
@@ -204,6 +204,7 @@ function validateForm() {
   
   // Validate on form submit
   form.addEventListener('submit', (e) => {
+    e.preventDefault();
     // Valide chaque champ du formulaire lors de la soumission
     const isValidFirstName = validateField(firstName, patterns.firstName, firstNameErrorMsg);
     const isValidLastName = validateField(lastName, patterns.lastName, lastNameErrorMsg);
@@ -211,11 +212,28 @@ function validateForm() {
     const isValidEmail = validateField(email, patterns.email, emailErrorMsg);
   
     // Si l'un des champs n'est pas valide, empêche la soumission du formulaire
-    if (!isValidFirstName || !isValidLastName || !isValidAddress || !isValidEmail) {
-        e.preventDefault(); // Empêche la soumission du formulaire si un champ est invalide.
+    if (isValidFirstName && isValidLastName && isValidAddress && isValidEmail) {
+      // On appelle la fonction afin de générer et afficher le numéro de commande
+      let orderCode = generateOrderNumber();
+      window.location.href = "./confirmation.html?orderCode="+orderCode;
     }
+    
   });
   }
+
+  function generateOrderNumber() {
+    // On générer un nombre à 6 chiffres aléatoires
+    const randomNumber = Math.floor(100000 + Math.random() * 900000);
+
+    // On obtient le timestamp en secondes
+    const timestamp = Math.floor(Date.now() / 1000);
+
+    // On concaténe les deux valeurs avec un tiret
+    const orderNumber = `${randomNumber}-${timestamp}`;
+    return orderNumber;
+
+  }
+
 
 // Appel initial de displayCommand
 displayCommand();
