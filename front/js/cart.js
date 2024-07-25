@@ -167,6 +167,7 @@ function validateForm() {
   const patterns = {
     firstName: /^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]{2,30}$/, // Prénom : lettres (y compris les accents), espaces, tirets et apostrophes, de 2 à 30 caractères.
     lastName: /^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]{2,30}$/, // Nom : mêmes règles que pour le prénom.
+    city:/^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]{2,30}$/,// city règle idem que nom et prénom . 
     address: /^[A-Za-z0-9À-ÖØ-öø-ÿ\s,'-]{5,100}$/, // Adresse : lettres, chiffres, accents, espaces, virgules, tirets, apostrophes, de 5 à 100 caractères.
     email: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/ // Email : format standard des adresses e-mail.
   };
@@ -187,20 +188,23 @@ function validateForm() {
   const form = document.querySelector('form.cart__order__form'); // Récupère l'élément du formulaire par son ID.
   const firstName = document.getElementById('firstName'); // Récupère l'élément de l'input prénom par son ID.
   const lastName = document.getElementById('lastName'); // Récupère l'élément de l'input nom par son ID.
+  const city = document.getElementById('city'); //Récupère l'élément de l'input ville par son ID
   const address = document.getElementById('address'); // Récupère l'élément de l'input adresse par son ID.
   const email = document.getElementById('email'); // Récupère l'élément de l'input email par son ID.
   
   // On récupère les éléments d'affichage d'erreur
   const firstNameErrorMsg = document.getElementById('firstNameErrorMsg'); // Récupère l'élément de message d'erreur pour le prénom par son ID.
   const lastNameErrorMsg = document.getElementById('lastNameErrorMsg'); // Récupère l'élément de message d'erreur pour le nom par son ID.
+  const cityErrorMsg = document.getElementById("cityErrorMsg") ; // récupère l'élément de message d'errur du la saisie de city par son ID . 
   const addressErrorMsg = document.getElementById('addressErrorMsg'); // Récupère l'élément de message d'erreur pour l'adresse par son ID.
   const emailErrorMsg = document.getElementById('emailErrorMsg'); // Récupère l'élément de message d'erreur pour l'email par son ID.
   
   // On ajoute les addEventListener en vue de validation :
-  firstName.addEventListener('input', () => validateField(firstName, patterns.firstName, firstNameErrorMsg)); // Ajoute un écouteur d'événement 'input' pour valider le prénom en temps réel.
-  lastName.addEventListener('input', () => validateField(lastName, patterns.lastName, lastNameErrorMsg)); // Ajoute un écouteur d'événement 'input' pour valider le nom en temps réel.
-  address.addEventListener('input', () => validateField(address, patterns.address, addressErrorMsg)); // Ajoute un écouteur d'événement 'input' pour valider l'adresse en temps réel.
-  email.addEventListener('input', () => validateField(email, patterns.email, emailErrorMsg)); // Ajoute un écouteur d'événement 'input' pour valider l'email en temps réel.
+  firstName.addEventListener('input', () => validateField(firstName, patterns.firstName, firstNameErrorMsg)); // Ajoute un écouteur d'événement 'input' afin de  valider le prénom en temps réel.
+  lastName.addEventListener('input', () => validateField(lastName, patterns.lastName, lastNameErrorMsg)); // Ajoute un écouteur d'événement 'input' afin de  valider le nom en temps réel.
+  city.addEventListener('input', () => validateField(city, patterns.city, cityErrorMsg)); // Ajoute un écouteyr d'évènement 'input' afin de valider la city en temps réel. 
+  address.addEventListener('input', () => validateField(address, patterns.address, addressErrorMsg)); // Ajoute un écouteur d'événement 'input' afin de  valider l'adresse en temps réel.
+  email.addEventListener('input', () => validateField(email, patterns.email, emailErrorMsg)); // Ajoute un écouteur d'événement 'input' afin de  valider l'email en temps réel.
   
   // Validate on form submit
   form.addEventListener('submit', (e) => {
@@ -208,11 +212,12 @@ function validateForm() {
     // Valide chaque champ du formulaire lors de la soumission
     const isValidFirstName = validateField(firstName, patterns.firstName, firstNameErrorMsg);
     const isValidLastName = validateField(lastName, patterns.lastName, lastNameErrorMsg);
+    const isValidCity = validateField(city, patterns.city, cityErrorMsg); 
     const isValidAddress = validateField(address, patterns.address, addressErrorMsg);
     const isValidEmail = validateField(email, patterns.email, emailErrorMsg);
   
     // Si l'un des champs n'est pas valide, empêche la soumission du formulaire
-    if (isValidFirstName && isValidLastName && isValidAddress && isValidEmail) {
+    if (isValidFirstName && isValidLastName && isValidCity && isValidAddress && isValidEmail) {
       // On appelle la fonction afin de générer et afficher le numéro de commande
       let orderCode = generateOrderNumber();
       window.location.href = "./confirmation.html?orderCode="+orderCode;
