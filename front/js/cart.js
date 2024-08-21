@@ -157,7 +157,7 @@ function displayCommand() {
 //========================================================================================
 // Function validateForm va tester la saisie des formulaires par le client : nom, prenom etc 
 //=============================================================================================
-// Elle est appelées ensuite 
+// Elle est appelée ensuite 
 
 function validateForm() {
   // ========================================================

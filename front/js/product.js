@@ -5,7 +5,7 @@ const urlString = window.location.search;
 const urlParam = new URLSearchParams(urlString);
 
 const productId = urlParam.get("id");
-// On récupère les infos du sofa que le cient visite le client avec une fonction getProductInfo()
+// On récupère les infos du sofa que le client visite avec une fonction getProductInfo()
 // On ajoute au local storage une clef "card" et comme valeur l'id , la couleur et la qty choisi par le client avec une fonction addToCart()
 
 getProductInfo();
